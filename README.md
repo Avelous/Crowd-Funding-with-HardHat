@@ -36,7 +36,6 @@ The Fund Me Code base includes:
 
 Other Scripts include:
 - Mocks deploy script
-- Image Hosting on Pinata Script
 - Mock Contracts for development Chains
 
 
