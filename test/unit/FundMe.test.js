@@ -12,11 +12,10 @@ const { developmentChain } = require("../../helper-hardhat-config")
 
           beforeEach(async function () {
               // deploy our fundME contract using hardhat deploy
-              // const accounts = await ethers.getSigners()
-              // const accountZero = accounts[0]
               deployer = (await getNamedAccounts()).deployer
               await deployments.fixture(["all"])
               fundMe = await ethers.getContract("FundMe", deployer)
+              //Deploy Mock
               mockV3Aggregator = await ethers.getContract(
                   "MockV3Aggregator",
                   deployer
@@ -56,12 +55,12 @@ const { developmentChain } = require("../../helper-hardhat-config")
               })
 
               it("Withdraw ETH from a single funder", async function () {
-                  //Arrange
+                  //Arrange: Get the Starting Balances of Deployer and Fund Me Contract
                   const startingFundMeBalance =
                       await fundMe.provider.getBalance(fundMe.address)
                   const startingDeployerBalance =
                       await fundMe.provider.getBalance(deployer)
-                  // Act
+                  // Withdraw Funds and get the gas used
                   const transactionResponse = await fundMe.withdraw()
                   const transactionReceipt = await transactionResponse.wait(1)
                   const { gasUsed, effectiveGasPrice } = transactionReceipt
@@ -118,7 +117,7 @@ const { developmentChain } = require("../../helper-hardhat-config")
                       endingDeployerBalance.add(gasCost).toString()
                   )
 
-                  // Make sure the getFunder are reset proper
+                  // Make sure the getFunder are reset properly
                   await expect(fundMe.getFunder(0)).to.be.reverted
 
                   for (i = 1; i < 6; i++) {

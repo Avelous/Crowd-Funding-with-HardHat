@@ -13,7 +13,7 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 error FundMe__NotOwner();
 
 /** @title A Contract for crowd funding
- * @author Aiva
+ * @author Avelous
  * @notice This contract is a demo funding contract
  * @dev THis implements s_priceFeed as our library
  */
@@ -21,11 +21,14 @@ error FundMe__NotOwner();
 contract FundMe {
     using PriceConverter for uint256;
 
+    // State Variables
     uint256 public constant MINIMUM_USD = 50 * 1e18;
 
+    // Fund Me Variables
     address[] private s_funders;
     mapping(address => uint256) private s_addressToAmountFunded;
     address private immutable i_owner;
+
     AggregatorV3Interface private s_priceFeed;
 
     modifier onlyOwner() {
@@ -54,14 +57,13 @@ contract FundMe {
 
     function fund() public payable {
         // want to be able to set a minimum fund amount in usd
-        //1. How do we send ETH to this contract
-        // msg.value.getConversionRate();
+
         require(
             msg.value.getConversionRate(s_priceFeed) >= MINIMUM_USD,
             "You need to spend more ETH!"
         );
-        // 18 decimals
 
+        // Store the funder's address
         s_addressToAmountFunded[msg.sender] = msg.value;
         s_funders.push(msg.sender);
     }
@@ -78,26 +80,16 @@ contract FundMe {
         // reset the array
         s_funders = new address[](0);
         // withdraw the funds
-
-        //msg.sender = address
-        // payable(msg.sender) = payable address
-
-        //transfer
-        //  payable(msg.sender).transfer(address(this).balance);
-
-        //  //send
-        //  bool sendSuccess = payable(msg.sender).send(address(this).balance);
-        //  require(sendSuccess, "Send failed");
-        //call
         (bool callSuccess, ) = payable(msg.sender).call{
             value: address(this).balance
         }("");
         require(callSuccess, "Call failed");
     }
 
+    // THis Function Saves Gas
     function cheaperWithdraw() public payable onlyOwner {
         address[] memory funders = s_funders;
-        // mappings can't be in memory
+
         for (
             uint256 funderIndex = 0;
             funderIndex < funders.length;
@@ -112,6 +104,7 @@ contract FundMe {
         require(success);
     }
 
+    //view or Pure Functions
     function getOwner() public view returns (address) {
         return i_owner;
     }
@@ -136,5 +129,5 @@ contract FundMe {
 // More features
 // revert transfers
 // dont save same wallet twice in array
-// if wallet send twice what is the total
-// set a max receive
+// if wallet send twice add up the total
+// set a max treshold

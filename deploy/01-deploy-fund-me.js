@@ -1,9 +1,3 @@
-// function deployFunc(hre) {}
-
-// module.exports.default = deployFunc
-
-// module.exports = async (hre) => {
-//     const { getNamedAccounts, deployments } = hre
 
 const { networkConfig, developmentChain } = require("../helper-hardhat-config")
 const { network } = require("hardhat")
@@ -14,8 +8,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
 
-    // const ethUsdPriceFeedAddress = networkConfig[chainId]["ethUsdPriceFeed"]
 
+    // when going for localhost or hardhat we'll go for mock
     let ethUsdPriceFeedAddress
     if (developmentChain.includes(network.name)) {
         const ethUsdAggregator = await deployments.get("MockV3Aggregator")
@@ -23,9 +17,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     } else {
         ethUsdPriceFeedAddress = networkConfig[chainId]["ethUsdPriceFeed"]
     }
-
-    // when going for localhost or hardhat we'll go for mock
-    // what happens when we change chain
 
     const args = [ethUsdPriceFeedAddress]
     const fundMe = await deploy("FundMe", {
